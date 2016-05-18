@@ -6,11 +6,11 @@ import path from 'path';
 
 describe('Examples', () => {
 
-  describe('TakeItEasy.chopro', () => {
-    var input = fs.readFileSync(path.join(__dirname, '../examples/TakeItEasy.chopro'), 'utf8');
-    parse(input, textRenderer);
-    var result = textRenderer.output();
-    console.log(result);
-  });
+  // describe('TakeItEasy.chopro', () => {
+  //   var input = fs.readFileSync(path.join(__dirname, '../examples/TakeItEasy.chopro'), 'utf8');
+  //   parse(input, textRenderer);
+  //   var result = textRenderer.output();
+  //   console.log(result);
+  // });
 
 });
