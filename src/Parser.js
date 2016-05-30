@@ -1,12 +1,6 @@
 import R from 'ramda';
 import camelize from 'camelize';
-
-var result = {
-  title: '',
-  subtitle: '',
-  artist: '',
-  parts: []
-};
+import treis from 'treis';
 
 const normaliseDirectiveName = (directiveName) => {
   switch(directiveName) {
@@ -29,72 +23,43 @@ const normaliseDirectiveName = (directiveName) => {
   }
 }
 
+const metadataDirectives = ['title', 'subtitle', 'artist'];
+
 const directiveRegex = /^\s*\{(.*)\}/;
 
 const isDirective = R.test(directiveRegex);
 
 const parseDirective = (line) => {
-  var result = directiveRegex.exec(line);
-  var elements = R.split(':', result[1]);
-  return [normaliseDirectiveName(elements[0]), R.slice(1, R.length(elements), elements)[0]];
-}
-
-const splitIntoLines = R.split('\n');
-
-const assocDirectiveData = R.assoc(R.prop('name'), R.prop('value'));
-
-const parseLine = R.when(isDirective, parseDirective);
-
-const parseLines = R.map(parseLine);
-
-const parseChordPro = R.pipe(splitIntoLines, parseLines, R.fromPairs);
-
-const log = (value) => {
-  console.log(`==>${value}`);
-}
-
-// function parseLine(line, result, renderer) {
-//   if(isComment(line)) {
-//     renderer.comment(parseComment(line));
-//   } else if(isDirective(line)) {
-//     var directive = parseDirective(line);
-//     renderDirective(renderer, directive);
-//   } else {
-//     renderer.lyrics(parseLyrics(line));
-//     var chords = parseChords(line);
-//     renderer.chords(chords);
-//   }
-//  }
-
-function renderDirective(renderer, directive) {
-  var functionName = camelize(directive.name);
-  var target = renderer[functionName];
-  if (target !== undefined) {
-    var converted = convertArgs(directive.args);
-    renderer[functionName].apply(this, converted);
+  let result = directiveRegex.exec(line);
+  let elements = R.split(':', result[1]);
+  let normalisedDirectiveName = normaliseDirectiveName(elements[0]);
+  return {
+    type: normalisedDirectiveName,
+    value: R.slice(1, R.length(elements), elements)[0]
   }
 }
 
-function convertArgs(args) {
-  var asInt = parseInt(args);
-  return Number.isNaN(asInt) ? args : [asInt];
-}
+var sourceCommentRegex = /^\s*#(.*)/;
 
-var commentRegex = /^\s*#(.*)/;
+const isSourceComment = R.test(sourceCommentRegex);
 
-function isComment(line) {
-  return line.match(commentRegex)
-}
-
-function parseComment(line) {
-  return commentRegex.exec(line)[1];
+function parseSourceComment(line) {
+  return {
+    type: 'sourceComment',
+    value: sourceCommentRegex.exec(line)[1]
+  }
 }
 
 var chordsRegex = /\[([a-zA-Z0-9#+])*\]/g;
 
 function parseLyrics(line) {
-  return line.replace(chordsRegex, '').trim();
+  return {
+    type: 'lyrics',
+    value: line.replace(chordsRegex, '').trim()
+  }
 }
+
+const isChords = R.test(chordsRegex);
 
 function parseChords(line) {
   var result = '';
@@ -111,7 +76,30 @@ function parseChords(line) {
       result += ' ';
     }
   }
-  return result.trim();
+  return {
+    type: 'chords',
+    value: result.trim()
+  }
+}
+
+const parseChordsAndLyrics = R.juxt([parseChords, parseLyrics]);
+
+const splitIntoLines = R.split('\n');
+
+const parseLine = R.cond([
+  [isDirective, parseDirective],
+  [isSourceComment, parseSourceComment],
+  [isChords, parseChordsAndLyrics],
+  [R.T, parseLyrics]
+]);
+
+const parseLines = R.map(parseLine);
+
+const parseChordPro = R.pipe(splitIntoLines, treis(parseLines), R.flatten);
+
+function convertArgs(args) {
+  var asInt = parseInt(args);
+  return Number.isNaN(asInt) ? args : [asInt];
 }
 
 export default parseChordPro;

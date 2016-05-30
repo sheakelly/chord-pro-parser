@@ -6,50 +6,41 @@ describe('Parser', () => {
 
   describe('parse()', () => {
 
-
-    // it('should render comment for #', () => {
-    //   var text = '# this is a commented out';
-    //   rendererMock.expects('comment').once(' this is commented out');
-    //   parse(text);
-    //   rendererMock.verify();
-    // });
+    it('should render comment for #', () => {
+      var result = parse('# this is a commented out')[0];
+      expect(result.type).be.equal('sourceComment');
+      expect(result.value).be.equal(' this is a commented out');
+    });
 
     it('should parse {title} directive', () => {
-      var text = '{title:Shark Fin Blues}';
-      var result = parse(text);
-      console.log(`result ${R.toString(result)}`);
-      expect(result.title).to.be.equal('Shark Fin Blues');
+      var result = parse('{title:Shark Fin Blues}')[0];
+      expect(result.type).to.be.equal('title');
+      expect(result.value).to.be.equal('Shark Fin Blues');
     });
-
 
     it('should parse {t} directive', () => {
-      var text = '{t:Like a Hurricane}\n{st:This is a test}'
-      var result = parse(text)
-      console.log(`result: ${R.toString(result)}`);
-      expect(result.title).to.be.equal('Like a Hurricane');
+      var result = parse('{t:Like a Hurricane}\n{st:This is a test}')[0];
+      expect(result.type).to.be.equal('title');
+      expect(result.value).to.be.equal('Like a Hurricane');
     });
 
-    // it('should parse {subtitle} directive', () => {
-    //   var text = '{subtitle:by The Drones}';
-    //   rendererMock.expects('subtitle').once().withArgs('by The Drones');
-    //   parse(text);
-    //   rendererMock.verify();
-    // });
+    it('should parse {subtitle} directive', () => {
+      var result = parse('{subtitle:by The Drones}')[0];
+      expect(result.type).to.be.equal('subtitle');
+      expect(result.value).to.be.equal('by The Drones');
+    });
 
+    it('should parse {st} directive', () => {
+      var result = parse('{st:by Neil Young}')[0];
+      expect(result.type).to.be.equal('subtitle');
+      expect(result.value).to.be.equal('by Neil Young');
+    });
 
-    // it('should parse {st} directive', () => {
-    //   var text = '{st:by Neil Young}'
-    //   rendererMock.expects('subtitle').once().withArgs('by Neil Young');
-    //   parse(text);
-    //   rendererMock.verify();
-    // });
-
-    // it('should parse {comment} directive', () => {
-    //   var text = '{comment:now listen here}';
-    //   rendererMock.expects('comment').once().withArgs('now listen here');
-    //   parse(text);
-    //   rendererMock.verify();
-    // });
+    it('should parse {comment} directive', () => {
+      var result = parse('{comment:now listen here}')[0];
+      expect(result.type).to.be.equal('comment');
+      expect(result.value).to.be.equal('now listen here');
+    });
 
     // it('should parse {c} directive', () => {
     //   var text = '{c:something important}'
@@ -58,19 +49,18 @@ describe('Parser', () => {
     //   rendererMock.verify();
     // });
 
-    // it('should parse lyrics', () => {
-    //   var text = 'There is a cat [C]staring at [Am]me'
-    //   rendererMock.expects('lyrics').once().withArgs('There is a cat staring at me');
-    //   parse(text);
-    //   rendererMock.verify();
-    // });
+    it('should parse lyrics', () => {
+      var result = parse('There is a cat [C]staring at [Am]me')[1];
+      expect(result.type).to.be.equal('lyrics');
+      expect(result.value).to.be.equal('There is a cat staring at me');
+    });
 
-    // it('should parse chords', () => {
-    //   var text = '[C]Too [Dm]many [G]chords'
-    //   rendererMock.expects('chords').once().withArgs('C    Dm     G');
-    //   parse(text);
-    //   rendererMock.verify();
-    // });
+    it('should parse chords', () => {
+      var result = parse('[C]Too [Dm]many [G]chords');
+      console.log(R.toString(result[0]));
+      expect(result[0].type).to.be.equal('chords');
+      expect(result[0].value).to.be.equal('C    Dm     G');
+    });
 
     // it('should parse {start_of_chorus}', () => {
     //   var text = '{start_of_chorus}'
