@@ -56,10 +56,9 @@ describe('Parser', () => {
     });
 
     it('should parse chords', () => {
-      var result = parse('[C]Too [Dm]many [G]chords');
-      console.log(R.toString(result[0]));
-      expect(result[0].type).to.be.equal('chords');
-      expect(result[0].value).to.be.equal('C    Dm     G');
+      var result = parse('[C]Too [Dm]many [G]chords')[0];
+      expect(result.type).to.be.equal('chords');
+      expect(result.value).to.be.equal('C    Dm     G');
     });
 
     // it('should parse {start_of_chorus}', () => {
