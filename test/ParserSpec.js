@@ -55,10 +55,12 @@ describe('Parser', () => {
       expect(result.value).to.be.equal('There is a cat staring at me');
     });
 
-    it('should parse chords', () => {
-      var result = parse('[C]Too [Dm]many [G]chords')[0];
-      expect(result.type).to.be.equal('chords');
-      expect(result.value).to.be.equal('C    Dm     G');
+    it('should parse chords and lyrics', () => {
+      var result = parse('[C]Too [Dm]many [G]chords');
+      expect(result[0].type).to.be.equal('chords');
+      expect(result[0].value).to.be.equal('C   Dm   G');
+      expect(result[1].type).to.be.equal('lyrics');
+      expect(result[1].value).to.be.equal('Too many chords');
     });
 
     // it('should parse {start_of_chorus}', () => {

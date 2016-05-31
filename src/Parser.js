@@ -64,14 +64,18 @@ const isChords = R.test(chordsRegex);
 function parseChords(line) {
   var result = '';
   var inChord = false;
+  var currentChord = '';
   for(var i = 0; i < line.length; i++) {
     var current = line[i];
     if (current === '[') {
       inChord = true;
+      currentChord = '';
     } else if (current === ']') {
+      i += currentChord.length;
       inChord = false;
+      result += currentChord;
     } else if (inChord) {
-      result += current;
+      currentChord += current;
     } else {
       result += ' ';
     }
